@@ -2,10 +2,14 @@ package com.example.firebase;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.example.firebase.databinding.ActivityMainBinding;
 import com.google.firebase.Firebase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -13,44 +17,59 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
+
+    private ArrayList<User> users;
+    private RecyclerView recyclerView;
+    private MyAdapter userAdapter;
+    private ActivityMainBinding binding;
+
+    //Firebase
+    DatabaseReference databaseReference;
+    FirebaseDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Write a message to the database
-        //Initialize and Access the Firebase Database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        binding = DataBindingUtil.setContentView(
+                this,
+                R.layout.activity_main
+        );
 
-        //Get a reference to a specific node in the database
-        DatabaseReference myRef = database.getReference("Users");
+        database = FirebaseDatabase.getInstance();
+        databaseReference = database.getReference("Users");
 
-        //Write a value to the specified database location
-
-  /*      User user = new User("Jack", "jack@gmail.com");
-        myRef.setValue(user);*/
+        //RecyclerView with DataBinding
+        recyclerView = binding.recyclerView;
 
 
-       // myRef.setValue("Hello from our Course");
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        TextView textView = findViewById(R.id.textView);
-        myRef.addValueEventListener(new ValueEventListener() {
+        //Fetch the Data from Firebase into RecyclerView
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-              User user = snapshot.getValue(User.class);
-
-              textView.setText("Email " + user.getEmail());
-
+                for (DataSnapshot dataSnapshot: snapshot.getChildren()){
+                    User user = dataSnapshot.getValue(User.class);
+                    users.add(user);
+                }
+                //notify an adapter associated with a recyclerView that the underlying dataset has changed
+                userAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                //Handle Errors here
 
             }
         });
+
+        users = new ArrayList<>();
+        userAdapter = new MyAdapter(this, users);
+        recyclerView.setAdapter(userAdapter);
 
     }
 }

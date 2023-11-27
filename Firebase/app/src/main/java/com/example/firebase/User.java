@@ -1,30 +1,50 @@
 package com.example.firebase;
 
-public class User {
-    String name;
-    String email;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
 
-    public User(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
+public class User extends BaseObservable {
+    String userName;
+    String phoneNumber;
+    String groupUser;
 
+    //When dealing with Firebase, always crete no-arguments constructor
     public User() {
     }
 
-    public String getName() {
-        return name;
+    public User(String userName, String phoneNumber, String groupUser) {
+        this.userName = userName;
+        this.phoneNumber = phoneNumber;
+        this.groupUser = groupUser;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Bindable
+    public String getUserName() {
+        return userName;
     }
 
-    public String getEmail() {
-        return email;
+    public void setUserName(String userName) {
+        this.userName = userName;
+        notifyPropertyChanged(BR.userName);
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    @Bindable
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+        notifyPropertyChanged(BR.phoneNumber);
+    }
+
+    @Bindable
+    public String getGroupUser() {
+        return groupUser;
+    }
+
+    public void setGroupUser(String groupUser) {
+        this.groupUser = groupUser;
+        notifyPropertyChanged(BR.groupUser);
     }
 }
